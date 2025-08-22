@@ -265,7 +265,7 @@ $("#payoutBtn").click(function () {
             const payout = parseFloat(document.getElementById("payoutAmount").value);
             const payoutDate = document.getElementById("payoutDate").value;
 
-            if (isNaN(payout) || payout <= 0 || payout > cycleProfits) {
+            if (isNaN(payout) || payout <= 0 || payout <= cycleProfits) {
                 Swal.showValidationMessage("Invalid payout amount");
                 return false;
             }
