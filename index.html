@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>FundedNext Calendar Tracker</title>
+    <title>Consistency Journal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -65,24 +65,27 @@
 
 <body>
     <div class="container py-4">
-        <h2 class="mb-3 text-center">📊 FundedNext Calendar Tracker</h2>
+        <h2 class="mb-3 text-center">Consistency Journal Tracker</h2>
 
         <!-- Summary -->
         <div class="card mb-3">
-            <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                    <p><strong>Gross Profit: </strong>$<span id="grossProfit">0.00</span></p>
-                    <p><strong>Net Profit: </strong>$<span id="netProfit">0.00</span></p>
-                    <p><strong>Highest Day Profit:</strong> $<span id="highestProfit">0</span></p>
-                    <p><strong>Consistency:</strong> <span id="consistency">0%</span></p>
-                    <p><strong>Status:</strong> <span id="status" class="fw-bold text-danger">❌ Not Eligible</span></p>
-                </div>
-                <div class="d-flex flex-column gap-2">
-                    <button id="payoutBtn" class="btn btn-primary" style="opacity: 0.8;">Payout</button>
-                    <button id="resetBtn" class="btn btn-danger" style="opacity: 0.8;">Reset</button>
-                </div>
+          <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+              <p><strong>Gross Profit: </strong>$<span id="grossProfit">0.00</span></p>
+              <p><strong>Net Profit: </strong>$<span id="netProfit">0.00</span></p>
+              <p><strong>Highest Day Profit:</strong> $<span id="highestProfit">0</span></p>
+              <p><strong>Consistency:</strong> <span id="consistency">0%</span></p>
+              <p><strong>Status:</strong> <span id="status" class="fw-bold text-danger">❌ Not Eligible</span></p>
+              <p><strong>Target for 40% Consistency:</strong> $<span id="targetProfit">0.00</span></p>
             </div>
+            <div class="d-flex flex-column gap-2">
+              <button id="payoutBtn" class="btn btn-primary" style="opacity: 0.8;">Payout</button>
+              <button id="resetBtn" class="btn btn-danger" style="opacity: 0.8;">Reset</button>
+            </div>
+          </div>
         </div>
+
+
 
         <!-- Calendar Header -->
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -223,19 +226,29 @@ function updateSummary() {
     let cycleProfits = getCurrentCycleProfits();
     cycleProfits.forEach(p => grossProfit += p.profit);
 
-    // Consistency uses highestEver ÷ grossProfit (not current cycle’s max!)
+    // Consistency calculation
     let consistency = grossProfit > 0 ? (highestEver / grossProfit) * 100 : 0;
+
+    // Required gross profit to achieve 40% consistency
+    let requiredGross = highestEver > 0 ? highestEver / 0.40 : 0;
+    let targetRemaining = requiredGross - grossProfit;
+    if (targetRemaining < 0) targetRemaining = 0;
+
+    // Eligibility
     let eligible = consistency <= 40 && grossProfit >= 250;
 
+    // Update DOM
     $("#grossProfit").text(grossProfit.toFixed(2));
     $("#netProfit").text(netProfit.toFixed(2));
     $("#highestProfit").text(highestEver.toFixed(2));
     $("#consistency").text(consistency.toFixed(2) + "%");
+    $("#targetProfit").text(targetRemaining.toFixed(2));
     $("#status")
         .text(eligible ? "✅ Eligible" : "❌ Not Eligible")
         .removeClass("text-danger text-success")
         .addClass(eligible ? "text-success" : "text-danger");
 }
+
 
 $("#payoutBtn").click(function () {
     let cycleProfits = getCurrentCycleProfits();
